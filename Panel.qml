@@ -28,8 +28,13 @@ Panel {
 
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
+  // Two steps, far enough apart to be two steps: 1.4 is the kit's secondary
+  // (PanelSectionHeader.qml:14, PanelHero.qml:22) and 1.9 its tertiary
+  // (clock/Panel.qml:580, 639). At 1.6 the pair differed by 14% and read as
+  // one muddled level, which left row times, split labels and spent week
+  // days all sitting at the same weight as the counts they qualify.
   readonly property color dim: Qt.darker(foreground, 1.4)
-  readonly property color dimmer: Qt.darker(foreground, 1.6)
+  readonly property color dimmer: Qt.darker(foreground, 1.9)
 
   // ---- Settings. Values can arrive from the settings form (typed) or from a
   //      hand-edited shell.json (anything), so every read is coerced.
@@ -687,15 +692,33 @@ Panel {
           foreground: root.foreground
           fontFamily: root.fontFamily
 
+          iconOpacity: root.totalCount > 0 ? 1 : 0.45
+
           iconComponent: Component {
-            Text {
-              text: root.totalCount > 0 ? String(root.totalCount) : "\uf21a"
-              color: root.foreground
-              font.family: root.fontFamily
-              // Hero read-out, deliberately outside the Style.font.* scale.
-              font.pixelSize: 44
-              font.bold: root.totalCount > 0
-              opacity: root.totalCount > 0 ? 1 : 0.45
+            // Held to a two-digit box so "Shipped today" does not step
+            // sideways the first time the day reaches 10 — the same
+            // fixed-width hold clock/Panel.qml:714 gives its month label so
+            // the chevrons either side of it stay put.
+            Item {
+              implicitWidth: Math.max(heroCount.implicitWidth,
+                Math.round(heroCount.font.pixelSize * 1.2))
+              implicitHeight: heroCount.implicitHeight
+
+              Text {
+                id: heroCount
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                text: root.totalCount > 0 ? String(root.totalCount) : "\uf21a"
+                color: root.foreground
+                font.family: root.fontFamily
+                // Hero read-out: a fixed step above the largest scale token
+                // rather than a frozen pixel size. The count is the panel's
+                // one focal point, and a theme that raises [font] base-size
+                // has to grow it too or the title beside it catches up.
+                // Same derive-from-a-token move as LockView.qml:24.
+                font.pixelSize: Math.round(Style.font.displayLarge * 1.5)
+                font.bold: root.totalCount > 0
+              }
             }
           }
         }
@@ -703,7 +726,7 @@ Panel {
         // ---- Split by type. Same three marks the bar chip's tooltip uses.
         Row {
           visible: root.totalCount > 0
-          spacing: Style.space(20)
+          spacing: Style.spacing.huge
 
           Repeater {
             model: [
@@ -714,26 +737,39 @@ Panel {
 
             Row {
               required property var modelData
-              spacing: Style.space(6)
+              spacing: Style.spacing.md
 
+              // Three sizes on one line, so they hang off a shared baseline
+              // rather than three centered boxes — centering leaves the mark
+              // sitting low against the digits (clock/Panel.qml:296).
               Text {
-                anchors.verticalCenter: parent.verticalCenter
+                anchors.baseline: splitCount.baseline
                 text: modelData.glyph
                 color: modelData.count > 0 ? root.foreground : root.dimmer
                 font.family: root.fontFamily
-                font.pixelSize: Style.font.body
+                // The same size these three marks are given in the list
+                // below, so a mark means one thing at one size wherever it
+                // appears. At body it also outsized nothing and undersized
+                // nothing — a 15-against-16 wobble instead of a step.
+                font.pixelSize: Style.font.bodySmall
               }
               Text {
-                anchors.verticalCenter: parent.verticalCenter
+                id: splitCount
                 text: String(modelData.count || 0)
                 color: modelData.count > 0 ? root.foreground : root.dimmer
                 font.family: root.fontFamily
-                font.pixelSize: Style.font.body
+                // One step over the row titles below. Bold alone does not
+                // separate a summary from a list in a monospace family.
+                font.pixelSize: Style.font.subtitle
                 font.bold: true
               }
               Text {
-                anchors.verticalCenter: parent.verticalCenter
-                text: modelData.label
+                anchors.baseline: splitCount.baseline
+                // Uppercased where it is drawn, not in the model: tracking
+                // is a capitals device, and this is the panel's third small
+                // label after the hero's date (PanelHero.qml:92) and the
+                // week's day letters, both of which already set caps.
+                text: String(modelData.label).toUpperCase()
                 color: root.dimmer
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
@@ -749,22 +785,18 @@ Panel {
         }
 
         // ---- Zero state. Never guilt-toned: the day is simply young.
+        //
+        // No mark of its own: on an empty day the hero is already showing
+        // the ship in place of a count, and the same glyph twice within a
+        // hero's height reads as a rendering mistake rather than a motif.
         Column {
           visible: root.flatItems.length === 0
           width: parent.width
-          spacing: Style.space(10)
-          topPadding: Style.space(10)
-          bottomPadding: Style.space(10)
+          // The empty body is the whole panel here, so it gets more than a
+          // sibling's worth of air above and below.
+          topPadding: Style.spacing.huge
+          bottomPadding: Style.spacing.huge
 
-          Text {
-            width: parent.width
-            horizontalAlignment: Text.AlignHCenter
-            text: "\uf21a"
-            color: root.foreground
-            font.family: root.fontFamily
-            font.pixelSize: Style.font.display
-            opacity: 0.35
-          }
           Text {
             width: parent.width
             horizontalAlignment: Text.AlignHCenter
@@ -790,7 +822,7 @@ Panel {
           Column {
             id: listColumn
             width: listScroll.width
-            spacing: Style.space(10)
+            spacing: Style.spacing.xl
 
             Repeater {
               model: root.groups
@@ -801,7 +833,7 @@ Panel {
                 required property int index
                 readonly property int flatOffset: root.groupOffsets[index] || 0
                 width: listColumn.width
-                spacing: Style.space(2)
+                spacing: Style.spacing.xxs
 
                 PanelSectionHeader {
                   text: root.repoLabel(group.modelData.repo)
@@ -859,9 +891,9 @@ Panel {
 
                     Text {
                       anchors.left: rowGlyph.right
-                      anchors.leftMargin: Style.space(8)
+                      anchors.leftMargin: Style.spacing.lg
                       anchors.right: rowTime.left
-                      anchors.rightMargin: Style.space(10)
+                      anchors.rightMargin: Style.spacing.xl
                       anchors.verticalCenter: parent.verticalCenter
                       text: String(row.modelData.title || "")
                       color: row.linkable ? root.foreground : root.dim
@@ -889,22 +921,34 @@ Panel {
         Row {
           visible: root.hasError
           width: parent.width
-          spacing: Style.space(6)
+          spacing: Style.spacing.md
 
+          // Urgent off the bar rather than the palette, the way the rest of
+          // the kit reads it (WidgetButton.qml:12), so a bar overriding its
+          // own urgent color is honored in the panel too.
           Text {
+            id: errorMark
             anchors.verticalCenter: parent.verticalCenter
             text: "\uf071"
-            color: Color.urgent
+            color: root.bar ? root.bar.urgent : Color.urgent
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
             opacity: 0.85
           }
           Text {
+            // Bounded and elided rather than left to run off the card. Both
+            // sources failing spells a line half again wider than the panel,
+            // and the chip's tooltip carries the sentence in full anyway.
+            width: parent.width - errorMark.width - parent.spacing
             anchors.verticalCenter: parent.verticalCenter
             text: root.errorSummary
-            color: Color.urgent
+            color: root.bar ? root.bar.urgent : Color.urgent
             font.family: root.fontFamily
-            font.pixelSize: Style.font.caption
+            // Matched to the mark beside it, and never the smallest type in
+            // the panel: this is the one line that explains why the numbers
+            // above it are behind. Still a step under the rows it qualifies.
+            font.pixelSize: Style.font.bodySmall
+            elide: Text.ElideRight
             opacity: 0.85
           }
         }
@@ -923,15 +967,19 @@ Panel {
             id: weekRow
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            spacing: Style.space(8)
+            spacing: Style.spacing.lg
 
             Repeater {
               model: root.weekCells
 
               Column {
                 required property var modelData
-                spacing: Style.space(2)
-                width: Style.space(20)
+                spacing: Style.spacing.xxs
+                // Sized by the digits it has to hold rather than by a flat
+                // 20: a three-figure day painted the full width of its cell
+                // with nothing left either side, closing the strip up
+                // exactly on the days worth reading.
+                width: Math.round(Style.font.bodySmall * 2)
 
                 Text {
                   width: parent.width
@@ -961,7 +1009,7 @@ Panel {
             id: footerActions
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            spacing: Style.space(8)
+            spacing: Style.spacing.lg
 
             Text {
               visible: root.updatedLabel !== ""

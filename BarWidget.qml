@@ -43,7 +43,9 @@ BarWidget {
   readonly property string chipFontFamily: bar ? bar.fontFamily : Style.font.family
 
   // One accent wash when the count grows. `pulse` drives a tint over the bar
-  // foreground so the chip brightens toward the accent and settles back.
+  // foreground so the chip carries the accent for a beat and settles back.
+  // The wash is a hue shift rather than a brightening: a palette is free to
+  // sit its accent either side of its foreground, and both read as a change.
   property real pulse: 0
   property int seenTotal: -1
   readonly property color chipForeground: pulse > 0
@@ -150,10 +152,18 @@ BarWidget {
     labelVisible: false
     hasVisualContent: true
     tooltipText: root.chipTooltip
+    // The button's own side padding rather than a number of our own: every
+    // other bar widget is label + scaledHorizontalMargin * 2 wide
+    // (WidgetButton.qml:68), so borrowing it puts this chip on the same
+    // rhythm as the chips either side of it.
     fixedWidth: root.vertical
       ? -1
-      : Math.max(Style.bar.statusSlot, chip.implicitWidth + Style.spaceReal(7) * 2)
+      : Math.max(Style.bar.statusSlot, chip.implicitWidth + button.scaledHorizontalMargin * 2)
     fixedHeight: root.vertical ? root.chipSlots * Style.bar.iconSlot : -1
+
+    // An empty day is the bar's own dimmed state, so it rides the bar's own
+    // dimming (WidgetButton.qml:67) instead of a second opacity of ours.
+    dimmed: root.dimGlyph
 
     onPressed: function(pressedButton) {
       if (pressedButton === Qt.RightButton || pressedButton === Qt.MiddleButton) root.refresh()
@@ -168,7 +178,7 @@ BarWidget {
       id: chip
       anchors.centerIn: parent
       columns: root.vertical ? 1 : 2
-      columnSpacing: Style.space(4)
+      columnSpacing: Style.spacing.sm
       rowSpacing: 0
       horizontalItemAlignment: Grid.AlignHCenter
       verticalItemAlignment: Grid.AlignVCenter
@@ -183,21 +193,27 @@ BarWidget {
           fontFamily: root.chipFontFamily
           fontSize: Style.bar.iconFont
           color: root.chipForeground
-          opacity: root.dimGlyph ? 0.55 : 1
-
-          Behavior on opacity {
-            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-          }
         }
 
+        // Urgent is read off the bar rather than the palette, the way every
+        // other bar widget reads it (WidgetButton.qml:12), so a bar that
+        // overrides its own active color is honored here too.
         Rectangle {
-          visible: root.hasError
-          width: Math.max(Style.space(4), Math.round(Style.bar.iconFont * 0.32))
+          visible: opacity > 0
+          opacity: root.hasError ? 1 : 0
+          width: Math.max(Style.spacing.sm, Math.round(Style.bar.iconFont * 0.32))
           height: width
           radius: width / 2
           anchors.right: parent.right
           anchors.top: parent.top
-          color: Color.urgent
+          color: root.bar ? root.bar.urgent : Color.urgent
+
+          // Fades rather than pops: a source going stale is not an event the
+          // user caused, so it arrives at the same 140ms the bar fades its
+          // own widgets in and out at (WidgetButton.qml:72).
+          Behavior on opacity {
+            NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
+          }
         }
       }
 
