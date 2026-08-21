@@ -4,6 +4,8 @@ A captain's log of what you shipped, for the [Omarchy](https://omarchy.org) bar.
 
 Most developer widgets show work you still owe: inboxes, queues, pipelines. Shiplog shows work you finished. It counts merged PRs, pushed commits, and closed issues since midnight, right in the bar. The full log for the day is one click away. Proof of done, not a todo list.
 
+![Shiplog in action: open the day's log, navigate with the keyboard, copy the recap](assets/demo.gif)
+
 ![Shiplog chip in the Omarchy bar](assets/bar-chip.png)
 
 ![The day's log, grouped by repo](assets/panel.png)
