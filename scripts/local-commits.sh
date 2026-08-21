@@ -25,6 +25,6 @@ for dir in "$@"; do
       [ -n "$line" ] || continue
       printf '%s\t%s\n' "$line" "$(cd "$child" && pwd)"
     done < <(git -C "$child" log --all --no-merges --since="@$since" \
-      --author="$email" --pretty=tformat:'%H%x09%ct%x09%s' 2>/dev/null || true)
+      --author="$email" --max-count=500 --pretty=tformat:'%H%x09%ct%x09%s' 2>/dev/null || true)
   done
 done

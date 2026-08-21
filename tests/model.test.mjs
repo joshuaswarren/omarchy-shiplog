@@ -468,6 +468,26 @@ test("markdownRecap: grouped sections, linked rows, bare rows for null urls", ()
   )
 })
 
+test("markdownRecap: escapes titles and repo names, drops non-http urls", () => {
+  const items = [
+    {
+      type: "pr", repo: "evil/one", title: "fix](https://evil.com) ![beacon](https://evil.com/x.gif)",
+      url: "https://github.com/evil/one/pull/1", ts: 100, sha: null,
+    },
+    {
+      type: "commit", repo: "a/one", title: "javascript:alert(1)",
+      url: "javascript:alert(1)", ts: 90, sha: "abc",
+    },
+  ]
+  const recap = M.markdownRecap(items, "2026-08-21")
+  // The title's brackets are escaped, so the whole thing is one link whose
+  // target is the github.com url; no image syntax and no evil.com link form.
+  assert.ok(recap.includes("\\](https://evil.com)"))
+  assert.ok(!recap.includes("![beacon]"))
+  assert.ok(!recap.includes("](javascript:"))
+  assert.ok(recap.includes("- javascript:alert(1)"))
+})
+
 test("markdownRecap: empty day renders the zero state", () => {
   assert.equal(M.markdownRecap([], "2026-08-21"), "# Shipped 2026-08-21\nNothing shipped.\n")
   assert.equal(M.markdownRecap(null, "2026-08-21"), "# Shipped 2026-08-21\nNothing shipped.\n")

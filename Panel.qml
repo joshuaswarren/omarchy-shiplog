@@ -275,6 +275,18 @@ Panel {
     scheduleRollover()
   }
 
+  // The poll timer already floors at pollMinutes; this floor is for the IPC
+  // path, which any same-user process can call in a tight loop and would
+  // otherwise bypass the poll interval and hammer the API.
+  property real lastIpcRefreshMs: 0
+
+  function ipcRefresh() {
+    var now = Date.now()
+    if (now - lastIpcRefreshMs < 30000) return
+    lastIpcRefreshMs = now
+    refresh()
+  }
+
   function refresh() {
     advanceDay()
 
@@ -629,7 +641,7 @@ Panel {
     function show(): void { root.openFromHotkey() }
     function hide(): void { root.close() }
     function toggle(): void { root.toggle() }
-    function refresh(): void { root.refresh() }
+    function refresh(): void { root.ipcRefresh() }
 
     // `copy` is the verb the panel's own footer button means; `copyDay` is the
     // name the bar widget forwards under, so either spelling reaches the same

@@ -335,7 +335,16 @@ function weekStrip(stateObj, todayKey, boundary) {
 }
 
 // "Copy day as Markdown" recap: header, one section per repo, linked rows
-// (bare rows for local-only commits, whose url is null).
+// (bare rows for local-only commits, whose url is null). Titles and repo
+// names are third-party data, so markdown metacharacters are escaped and only
+// http(s) urls are emitted as links; anything else degrades to a bare row.
+function escapeMarkdown(value) {
+  return String(value === undefined || value === null ? "" : value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\[/g, "\\[")
+    .replace(/\]/g, "\\]")
+}
+
 function markdownRecap(items, dateLabel) {
   var lines = ["# Shipped " + String(dateLabel === undefined || dateLabel === null ? "" : dateLabel)]
   var groups = groupByRepo(items)
@@ -345,11 +354,15 @@ function markdownRecap(items, dateLabel) {
   }
   for (var g = 0; g < groups.length; g++) {
     lines.push("")
-    lines.push("## " + groups[g].repo)
+    lines.push("## " + escapeMarkdown(groups[g].repo))
     for (var i = 0; i < groups[g].items.length; i++) {
       var item = groups[g].items[i]
-      if (item.url) lines.push("- [" + item.title + "](" + item.url + ")")
-      else lines.push("- " + item.title)
+      var title = escapeMarkdown(item.title)
+      if (item.url && /^https?:\/\//i.test(String(item.url))) {
+        lines.push("- [" + title + "](" + String(item.url) + ")")
+      } else {
+        lines.push("- " + title)
+      }
     }
   }
   return lines.join("\n") + "\n"
