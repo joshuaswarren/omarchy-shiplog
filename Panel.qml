@@ -93,6 +93,20 @@ Panel {
     return out
   }
 
+  readonly property string recapDir: String(setting("recapDir", ""))
+
+  // The same single leading-tilde expansion localRepoDirs gets: nothing else
+  // in the string is interpreted, and the finished path travels to mkdir and
+  // the writer as one argument, never through a shell.
+  readonly property string recapDirExpanded: {
+    var configured = recapDir.replace(/^\s+|\s+$/g, "")
+    var home = Quickshell.env("HOME")
+    if (configured === "~") return home
+    if (configured.indexOf("~/") === 0) return home + configured.substr(1)
+    return configured
+  }
+  readonly property bool recapEnabled: Model.recapFilePath(recapDirExpanded, todayKey) !== ""
+
   // Plugin source directory, so the bundled scan script can be invoked by
   // absolute path. Qt hands back a percent-encoded file URL.
   readonly property string pluginDir: {
@@ -274,6 +288,9 @@ Panel {
   function advanceDay() {
     var next = Model.dayStartMs(Date.now(), dayBoundary)
     if (!isFinite(next) || next === dayStartMs) return
+    // Auto-archive only days that shipped something; a manual save (s key,
+    // IPC) still records an empty day when the user asks for it.
+    if (recapEnabled && totalCount > 0) saveRecap()
     persistCounts()
     dayStartMs = next
     selectedIndex = -1
@@ -638,6 +655,53 @@ Panel {
     onTriggered: root.recentlyCopied = false
   }
 
+  property bool recentlySaved: false
+  property string recapSavedName: ""
+  property string recapPath: ""
+  property string recapContent: ""
+
+  Timer {
+    id: savedTimer
+    interval: 1400
+    repeat: false
+    onTriggered: root.recentlySaved = false
+  }
+
+  // Path and markdown are captured before mkdir starts, so a rollover that
+  // lands mid-save cannot swap the day under a running write. A request that
+  // arrives while mkdir is still running is dropped: the in-flight write
+  // already holds that day's data, so only a duplicate is lost.
+  function saveRecap() {
+    var path = Model.recapFilePath(recapDirExpanded, todayKey)
+    if (path === "") return
+    var markdown = Model.markdownRecap(items, dateLabel)
+    if (!markdown) return
+    if (recapMkdir.running) return
+    recapPath = path
+    recapContent = markdown
+    recapMkdir.command = ["mkdir", "-p", recapDirExpanded]
+    recapMkdir.running = true
+  }
+
+  Process {
+    id: recapMkdir
+    onExited: function(exitCode) {
+      if (exitCode !== 0 || root.recapPath === "") return
+      recapFile.path = root.recapPath
+      recapFile.setText(root.recapContent)
+      root.recapSavedName = root.recapPath.substr(root.recapPath.lastIndexOf("/") + 1)
+      root.recentlySaved = true
+      savedTimer.restart()
+    }
+  }
+
+  FileView {
+    id: recapFile
+    watchChanges: false
+    atomicWrites: true
+    printErrors: false
+  }
+
   IpcHandler {
     target: root.ipcTarget
 
@@ -653,6 +717,11 @@ Panel {
     // clipboard write.
     function copy(): void { root.copyDay() }
     function copyDay(): void { root.copyDay() }
+
+    // Same two spellings as the clipboard pair above: `save` is the verb the
+    // s key means, `saveDay` the name the bar widget forwards under.
+    function save(): void { root.saveRecap() }
+    function saveDay(): void { root.saveRecap() }
   }
 
   // ---- UI ------------------------------------------------------------------
@@ -678,8 +747,8 @@ Panel {
       onTextKey: function(character) {
         if (character === "r") root.refresh()
         else if (character === "c") root.copyDay()
+        else if (character === "s") root.saveRecap()
       }
-
       Column {
         id: shiplogColumn
         width: keyCatcher.width
@@ -1012,9 +1081,11 @@ Panel {
             spacing: Style.spacing.lg
 
             Text {
-              visible: root.updatedLabel !== ""
+              visible: root.updatedLabel !== "" || root.recentlySaved
               anchors.verticalCenter: parent.verticalCenter
-              text: "Updated " + root.updatedLabel
+              text: root.recentlySaved
+                ? "Saved " + root.recapSavedName
+                : "Updated " + root.updatedLabel
               color: root.dimmer
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption

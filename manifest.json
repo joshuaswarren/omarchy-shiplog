@@ -25,7 +25,8 @@
       "countMergedPrs": true,
       "countClosedIssues": true,
       "hideWhenZero": false,
-      "dayBoundary": "00:00"
+      "dayBoundary": "00:00",
+      "recapDir": ""
     },
     "schema": [
       {
@@ -97,6 +98,13 @@
         "label": "Day boundary",
         "description": "Local time the logical day starts, as HH:MM. Night owls can end the day at 04:00.",
         "defaultValue": "00:00"
+      },
+      {
+        "key": "recapDir",
+        "type": "string",
+        "label": "Recap directory",
+        "description": "Empty disables the archive. When set, the day's log is saved to <dir>/<YYYY-MM-DD>.md at day rollover and via the s key.",
+        "defaultValue": ""
       }
     ]
   }

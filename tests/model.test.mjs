@@ -20,7 +20,8 @@ vm.runInNewContext(
     " normalizeSearchIssues: normalizeSearchIssues, normalizeSearchCommits: normalizeSearchCommits," +
     " normalizeLocalCommits: normalizeLocalCommits," +
     " mergeItems: mergeItems, groupByRepo: groupByRepo, counts: counts," +
-    " updateStateCache: updateStateCache, weekStrip: weekStrip, markdownRecap: markdownRecap }",
+    " updateStateCache: updateStateCache, weekStrip: weekStrip, markdownRecap: markdownRecap," +
+    " recapFilePath: recapFilePath }",
   ctx
 )
 
@@ -433,6 +434,50 @@ test("weekStrip: corrupt state object and bad todayKey degrade safely", () => {
   assert.equal(M.weekStrip({}, today, "00:00").length, 7)
   assert.equal(M.weekStrip(null, today, "00:00").length, 7)
   assert.deepEqual(M.weekStrip({ days: {} }, "garbage", "00:00"), [])
+})
+
+
+// ---- recapFilePath ---------------------------------------------------------------------
+
+test("recapFilePath: valid absolute dir and day key", () => {
+  assert.equal(M.recapFilePath("/recaps", "2026-08-21"), "/recaps/2026-08-21.md")
+})
+
+test("recapFilePath: strips trailing slash on dir", () => {
+  assert.equal(M.recapFilePath("/a/b/", "2026-08-21"), "/a/b/2026-08-21.md")
+})
+
+test("recapFilePath: dots in segment names are allowed", () => {
+  assert.equal(M.recapFilePath("/a/b.c/d", "2026-08-21"), "/a/b.c/d/2026-08-21.md")
+})
+
+test("recapFilePath: rejects relative dir", () => {
+  assert.equal(M.recapFilePath("recaps/out", "2026-08-21"), "")
+})
+
+test("recapFilePath: rejects empty or whitespace-only dir", () => {
+  assert.equal(M.recapFilePath("", "2026-08-21"), "")
+  assert.equal(M.recapFilePath("   ", "2026-08-21"), "")
+  assert.equal(M.recapFilePath("\t", "2026-08-21"), "")
+})
+
+test("recapFilePath: rejects dot and dot-dot path segments", () => {
+  assert.equal(M.recapFilePath("/a/../b", "2026-08-21"), "")
+  assert.equal(M.recapFilePath("/a/./b", "2026-08-21"), "")
+  assert.equal(M.recapFilePath("/safe/..", "2026-08-21"), "")
+})
+
+test("recapFilePath: rejects malformed or empty day keys", () => {
+  assert.equal(M.recapFilePath("/recaps", "2026-8-21"), "")
+  assert.equal(M.recapFilePath("/recaps", "garbage"), "")
+  assert.equal(M.recapFilePath("/recaps", ""), "")
+})
+
+test("recapFilePath: null and undefined inputs yield empty string", () => {
+  assert.equal(M.recapFilePath(null, "2026-08-21"), "")
+  assert.equal(M.recapFilePath("/recaps", null), "")
+  assert.equal(M.recapFilePath(undefined, "2026-08-21"), "")
+  assert.equal(M.recapFilePath("/recaps", undefined), "")
 })
 
 // ---- markdownRecap ---------------------------------------------------------------------

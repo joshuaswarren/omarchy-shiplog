@@ -39,14 +39,21 @@ Most developer widgets show work you still owe: inboxes, queues, pipelines. Ship
 omarchy plugin add https://github.com/joshuaswarren/omarchy-shiplog
 ```
 
+Remove it the same way:
+
+```bash
+omarchy plugin remove io.github.joshuaswarren.shiplog
+```
+
 ## Usage
 
 - Left-click the chip to open the day's log. Right- or middle-click to refresh now.
-- In the panel: arrows move, Enter opens the item, Esc closes. Press `r` to refresh and `c` to copy the day as Markdown.
-- `omarchy-shell shell toggle io.github.joshuaswarren.shiplog '{}'` toggles the panel. The plugin's own IPC target answers `open`, `close`, `toggle`, `refresh`, and `copy`:
+- In the panel: arrows move, Enter opens the item, Esc closes. Press `r` to refresh, `c` to copy the day as Markdown, and `s` to save it to the recap archive.
+- `omarchy-shell shell toggle io.github.joshuaswarren.shiplog '{}'` toggles the panel. The plugin's own IPC target answers `open`, `close`, `toggle`, `refresh`, `copy`, and `save`:
 
 ```bash
 quickshell ipc -p "$OMARCHY_PATH/shell" call io.github.joshuaswarren.shiplog copy
+quickshell ipc -p "$OMARCHY_PATH/shell" call io.github.joshuaswarren.shiplog save
 ```
 
 ## Configuration
@@ -63,13 +70,15 @@ Settings live inline on the plugin entry in `~/.config/omarchy/shell.json`:
   "countMergedPrs": true,
   "countClosedIssues": true,
   "hideWhenZero": false,
-  "dayBoundary": "00:00"
+  "dayBoundary": "00:00",
+  "recapDir": ""
 }
 ```
 
 - Add `"local"` to `sources` to scan repos one level under each `localRepoDirs` entry. The scan counts commits made under each repo's own `user.email`. Local-only commits show the repo path instead of a link. They work offline.
 - `pollMinutes` is clamped to a 5-minute minimum.
 - `dayBoundary` (`"HH:MM"`) lets the "day" end at 04:00 for night owls. Counts reset at the boundary. The finished day moves into the week strip.
+- `recapDir` turns on the recap archive. Empty disables it. Set it to a directory (`"~/Documents/shiplog"`) and each day's log is saved there as `YYYY-MM-DD.md`: automatically when the day rolls over (only for days that shipped something), and on demand with the `s` key or the `save` IPC method. The filename is always generated from the date, the write is atomic, and a failed write changes nothing.
 
 ## Data sources
 
@@ -77,7 +86,7 @@ All GitHub traffic is REST search via `gh api`, one small burst per poll. Merged
 
 ## Security
 
-Strictly read-only. The plugin runs `gh` and `git` with argument arrays only. No user setting ever passes through a shell. It never touches tokens. It renders remote strings as plain text, opens only `http(s)` links, and never writes to any remote. State is a small local day-count cache at `~/.local/state/omarchy/shiplog.json`. Details in [docs/REQUIREMENTS.md §7](docs/REQUIREMENTS.md#7-security).
+Strictly read-only toward GitHub. The plugin runs `gh` and `git` with argument arrays only. No user setting ever passes through a shell. It never touches tokens. It renders remote strings as plain text, opens only `http(s)` links, and never writes to any remote. Local writes are limited to the day-count cache at `~/.local/state/omarchy/shiplog.json` and, only when you set `recapDir`, date-named recap files inside that directory (atomic, generated filenames, fail-closed). Details in [docs/REQUIREMENTS.md §7](docs/REQUIREMENTS.md#7-security).
 
 ## Development
 

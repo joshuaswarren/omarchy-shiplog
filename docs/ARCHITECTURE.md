@@ -44,6 +44,7 @@ counts(items)                          -> Counts
 updateStateCache(stateText, key, cnts) -> StateFile object  // tolerant of missing/corrupt input
 weekStrip(stateObj, todayKey, boundary)-> [{ key, label, count, isToday }] x 7, oldest first
 markdownRecap(items, dateLabel)        -> string          // "copy day as Markdown"
+recapFilePath(dir, key)                -> string          // "<dir>/<key>.md" for a validated absolute dir + day key, else ""
 ```
 
 All functions defensive: null/empty/garbage input returns empty results, never throws.
@@ -59,7 +60,8 @@ lifecycle: `opened`, `open()`, `openFromHotkey()`, `close()`, `toggle()`,
 
 `sources` (["github"], may include "local"), `localRepoDirs` (["~/src"]),
 `pollMinutes` (5, min 5), `countCommits` (true), `countMergedPrs` (true),
-`countClosedIssues` (true), `hideWhenZero` (false), `dayBoundary` ("00:00").
+`countClosedIssues` (true), `hideWhenZero` (false), `dayBoundary` ("00:00"),
+`recapDir` ("" = archive disabled).
 Read via `setting(name, fallback)`.
 
 ## Polling

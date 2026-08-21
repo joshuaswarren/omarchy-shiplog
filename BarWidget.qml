@@ -75,6 +75,10 @@ BarWidget {
     if (panelLoader.item && panelLoader.item.copyDay) panelLoader.item.copyDay()
   }
 
+  function saveDay(arg) {
+    if (panelLoader.item && panelLoader.item.saveRecap) panelLoader.item.saveRecap()
+  }
+
   function togglePanel() {
     if (panelLoader.item && panelLoader.item.toggle) panelLoader.item.toggle()
   }

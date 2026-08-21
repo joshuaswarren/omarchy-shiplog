@@ -61,7 +61,8 @@ Left-click: toggle panel. Right-click: refresh now.
   "countMergedPrs": true,
   "countClosedIssues": true,
   "hideWhenZero": false,
-  "dayBoundary": "00:00"
+  "dayBoundary": "00:00",
+  "recapDir": ""
 }
 ```
 
@@ -109,3 +110,6 @@ Left-click: toggle panel. Right-click: refresh now.
   local scan matches each repo's configured identity.
 - "Copy day as Markdown": shipped in v0.1.0 (footer button, `c` key, and the
   `copy` IPC method).
+- Save the shiplog somewhere: shipped as the recap archive. `recapDir` set
+  means each shipped day is written to `<recapDir>/<YYYY-MM-DD>.md` at
+  rollover, plus on demand via the `s` key and the `save` IPC method.

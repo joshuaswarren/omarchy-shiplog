@@ -334,6 +334,26 @@ function weekStrip(stateObj, todayKey, boundary) {
   return out
 }
 
+// Absolute recap directory + logical day key -> "<dir>/<key>.md", or "" when
+// either input is unsafe. dir must be absolute with no "." or ".." segments;
+// key must parse as a calendar day via parseDayKey.
+function recapFilePath(dir, key) {
+  if (dir === undefined || dir === null || key === undefined || key === null) return ""
+  var dirStr = String(dir)
+  var keyStr = String(key)
+  if (dirStr.length === 0 || /^\s+$/.test(dirStr)) return ""
+  if (dirStr.charAt(0) !== "/") return ""
+  if (!parseDayKey(keyStr)) return ""
+  while (dirStr.length > 1 && dirStr.charAt(dirStr.length - 1) === "/") {
+    dirStr = dirStr.slice(0, -1)
+  }
+  var parts = dirStr.split("/")
+  for (var i = 1; i < parts.length; i++) {
+    if (parts[i] === "" || parts[i] === "." || parts[i] === "..") return ""
+  }
+  return dirStr + "/" + keyStr + ".md"
+}
+
 // "Copy day as Markdown" recap: header, one section per repo, linked rows
 // (bare rows for local-only commits, whose url is null). Titles and repo
 // names are third-party data, so markdown metacharacters are escaped and only
