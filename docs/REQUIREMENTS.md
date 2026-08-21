@@ -1,9 +1,11 @@
 # Shiplog — Requirements
 
-Status: **specification** (v0.1.0, nothing implemented yet)
+Status: **implemented** (v0.1.0, live-verified on Omarchy 4 / Quattro)
 Target: Omarchy 4 / Quattro shell (Quickshell plugin API)
 Plugin ID: `io.github.joshuaswarren.shiplog`
-Kinds: `bar-widget` + `panel`
+Kind: `bar-widget` (the panel is the widget's own popout; the shell's separate
+`panel` kind is for standalone surfaces like the OSD, so the installed
+first-party convention — weather, clock — is a single bar-widget entry point)
 
 ## 1. Problem
 
@@ -67,12 +69,12 @@ Left-click: toggle panel. Right-click: refresh now.
 
 ## 6. Data & integration
 
-- GitHub source shells out to `gh api` / `gh search` with structured arguments (no string-interpolated shell). Requires `gh auth login` already done; plugin never handles tokens itself.
-  - Merged PRs: `gh search prs --author=@me --merged --merged-at=<today>`.
-  - Closed issues: closed by the user today (assignee or author, configurable later; v1 = author).
-  - Pushed commits: events API for `PushEvent`s today, deduplicated by SHA.
-- Local source runs `git log --since=<boundary> --author=<user.email> --oneline` per repo found one level under each `localRepoDirs` entry.
-- Week strip is computed from a small local cache (`state.json` in the plugin config dir) so it costs zero extra API calls.
+- GitHub source shells out to `gh api` REST search with structured arguments (no string-interpolated shell). Requires `gh auth login` already done; plugin never handles tokens itself.
+  - Merged PRs: `/search/issues?q=author:LOGIN+is:pr+is:merged+merged:>=DATE`.
+  - Closed issues: `/search/issues?q=author:LOGIN+is:issue+is:closed+closed:>=DATE` (v1 = author).
+  - Commits: `/search/commits?q=author:LOGIN+author-date:>=DATE`, deduplicated by SHA. Commit search indexes default branches; any-branch coverage comes from the local source. The events API was the original plan and is unusable: GitHub now returns `PushEvent` payloads with empty `commits[]` (verified 2026-08-21). REST search also draws on a separate rate meter from GraphQL, so `gh search` exhaustion elsewhere cannot blind the widget.
+- Local source runs the bundled `scripts/local-commits.sh` (argument arrays, one `git log --all --since` per repo found one level under each `localRepoDirs` entry, authored by that repo's own `user.email`).
+- Week strip is computed from a small local cache (`~/.local/state/omarchy/shiplog.json`, following the shell's state-dir convention) so it costs zero extra API calls.
 - All parsing defensive: missing fields, empty results, and API errors degrade to the last good data plus the warning-dot state.
 
 ## 7. Security
@@ -90,7 +92,7 @@ Left-click: toggle panel. Right-click: refresh now.
 - A4: At `dayBoundary`, counts reset and yesterday's total appears in the week strip.
 - A5: Zero state renders per G6; `hideWhenZero: true` removes the chip entirely.
 - A6: Panel keyboard navigation works end-to-end; Enter opens the correct URL.
-- A7: Poll traffic ≤ 1 request burst per `pollMinutes`; conditional requests verified via `gh api -i` ETag behavior.
+- A7: Poll traffic ≤ 1 request burst (three REST searches) per `pollMinutes`; every subprocess carries a hard `timeout` so a hung child degrades to the warning-dot state instead of freezing a source. (Conditional requests died with the events API; REST search responses are not usefully ETag-cacheable.)
 - A8: Theme switch recolors chip and panel with no restart; horizontal and vertical bars both render.
 - A9: `omarchy plugin validate .` passes.
 
@@ -101,7 +103,9 @@ Left-click: toggle panel. Right-click: refresh now.
 - M3: Local-repos source, week strip, day boundary (A3, A4).
 - M4: Polish — theming, vertical bar, README screenshots (A8, A9).
 
-## 10. Open questions
+## 10. Resolved open questions
 
-- Should co-authored commits count? (Lean: yes, if the user is any author.)
-- Panel "copy day as Markdown" action — one-click day recap export. Cheap, pairs with Hard Stop's recap file. (Lean: yes in M3.)
+- Co-authored commits count: yes — commit search matches `author:`, and the
+  local scan matches each repo's configured identity.
+- "Copy day as Markdown": shipped in v0.1.0 (footer button, `c` key, and the
+  `copy` IPC method).
