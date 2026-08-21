@@ -6,6 +6,8 @@ Most developer widgets show work you still owe: inboxes, queues, pipelines. Ship
 
 ![Shiplog in action: open the day's log, navigate with the keyboard, copy the recap](assets/demo.gif)
 
+A seven-second interaction recording lives in [assets/demo.mp4](assets/demo.mp4).
+
 ![Shiplog chip in the Omarchy bar](assets/bar-chip.png)
 
 ![The day's log, grouped by repo](assets/panel.png)
