@@ -1,0 +1,26 @@
+{
+  "total_count": 3,
+  "items": [
+    {
+      "html_url": "https://github.com/acme/widgets/pull/7",
+      "title": "Fix password reset expiration",
+      "repository_url": "https://api.github.com/repos/acme/widgets",
+      "closed_at": "2026-08-21T10:00:00Z",
+      "updated_at": "2026-08-21T10:30:00Z",
+      "pull_request": { "merged_at": "2026-08-21T09:00:00Z" }
+    },
+    {
+      "html_url": "https://github.com/joshuaswarren/remnic/pull/9",
+      "title": "No pull_request block, closed only",
+      "repository_url": "https://api.github.com/repos/joshuaswarren/remnic",
+      "closed_at": "2026-08-21T08:00:00Z",
+      "updated_at": "2026-08-21T08:00:01Z"
+    },
+    {
+      "html_url": "https://github.com/joshuaswarren/allward/pull/4",
+      "title": "Open PR, updated only",
+      "repository_url": "https://api.github.com/repos/joshuaswarren/allward",
+      "updated_at": "2026-08-21T07:00:00Z"
+    }
+  ]
+}

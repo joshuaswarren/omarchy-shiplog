@@ -1,0 +1,22 @@
+{
+  "total_count": 3,
+  "items": [
+    {
+      "html_url": "https://github.com/joshuaswarren/remnic/issues/42",
+      "title": "Review gate blocks merge",
+      "repository_url": "https://api.github.com/repos/joshuaswarren/remnic",
+      "closed_at": "2026-08-21T09:00:00Z"
+    },
+    {
+      "html_url": "https://github.com/x/y/issues/3",
+      "title": "repository_url not a repos URL",
+      "repository_url": "https://api.github.com/not-a-repos-path",
+      "closed_at": "2026-08-21T09:05:00Z"
+    },
+    {
+      "html_url": "https://github.com/x/y/issues/4",
+      "title": "repository_url missing",
+      "closed_at": "2026-08-21T09:10:00Z"
+    }
+  ]
+}

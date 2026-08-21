@@ -4,20 +4,100 @@
   "name": "Shiplog",
   "version": "0.1.0",
   "author": "Joshua Warren",
-  "description": "A captain's log of what you shipped today: merged PRs, pushed commits, and closed issues in the Omarchy bar.",
+  "description": "A captain's log of what you shipped today: merged PRs, pushed commits, closed issues.",
   "kinds": [
-    "bar-widget",
-    "panel"
+    "bar-widget"
   ],
   "entryPoints": {
-    "barWidget": "BarWidget.qml",
-    "panel": "Panel.qml"
+    "barWidget": "BarWidget.qml"
   },
   "barWidget": {
     "displayName": "Shiplog",
     "description": "Today's shipped work at a glance.",
     "category": "Developer Tools",
     "defaultSection": "right",
-    "allowMultiple": false
+    "allowMultiple": false,
+    "defaults": {
+      "sources": ["github"],
+      "localRepoDirs": ["~/src"],
+      "pollMinutes": 5,
+      "countCommits": true,
+      "countMergedPrs": true,
+      "countClosedIssues": true,
+      "hideWhenZero": false,
+      "dayBoundary": "00:00"
+    },
+    "schema": [
+      {
+        "key": "sources",
+        "type": "multiselect",
+        "label": "Sources",
+        "description": "Where shipped work is read from. GitHub needs `gh auth login`.",
+        "noSelectionText": "No sources",
+        "placeholderText": "Search sources...",
+        "emptyText": "No sources",
+        "options": [
+          {
+            "value": "github",
+            "label": "GitHub",
+            "description": "Merged pull requests, closed issues, and pushed commits via the gh CLI"
+          },
+          {
+            "value": "local",
+            "label": "Local repositories",
+            "description": "Commits authored today in repositories under the folders below"
+          }
+        ]
+      },
+      {
+        "key": "localRepoDirs",
+        "type": "string",
+        "label": "Local repo folders",
+        "description": "Comma-separated folders scanned one level deep for git repositories.",
+        "defaultValue": "~/src"
+      },
+      {
+        "key": "pollMinutes",
+        "type": "integer",
+        "label": "Poll interval (minutes)",
+        "description": "How often Shiplog refreshes. Five minutes is the floor, to stay friendly to the GitHub API.",
+        "min": 5,
+        "max": 120,
+        "step": 5,
+        "defaultValue": 5
+      },
+      {
+        "key": "countCommits",
+        "type": "boolean",
+        "label": "Count pushed commits",
+        "defaultValue": true
+      },
+      {
+        "key": "countMergedPrs",
+        "type": "boolean",
+        "label": "Count merged pull requests",
+        "defaultValue": true
+      },
+      {
+        "key": "countClosedIssues",
+        "type": "boolean",
+        "label": "Count closed issues",
+        "defaultValue": true
+      },
+      {
+        "key": "hideWhenZero",
+        "type": "boolean",
+        "label": "Hide when nothing shipped",
+        "description": "Remove the chip from the bar entirely until the first item of the day lands.",
+        "defaultValue": false
+      },
+      {
+        "key": "dayBoundary",
+        "type": "string",
+        "label": "Day boundary",
+        "description": "Local time the logical day starts, as HH:MM. Night owls can end the day at 04:00.",
+        "defaultValue": "00:00"
+      }
+    ]
   }
 }

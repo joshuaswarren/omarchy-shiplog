@@ -1,0 +1,17 @@
+{
+  "total_count": 4,
+  "items": [
+    { "html_url": "https://github.com/x/y/pull/1", "title": "No timestamps at all" },
+    {
+      "html_url": "https://github.com/x/y/pull/2",
+      "title": "No repository_url",
+      "closed_at": "2026-08-21T08:00:00Z"
+    },
+    {
+      "title": "No html_url either",
+      "repository_url": "https://api.github.com/repos/x/y",
+      "closed_at": "2026-08-21T08:10:00Z"
+    },
+    "not-an-object"
+  ]
+}

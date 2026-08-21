@@ -1,0 +1,36 @@
+{
+  "total_count": 5,
+  "items": [
+    {
+      "sha": "abc1230000000000000000000000000000000001",
+      "html_url": "https://github.com/acme/widgets/commit/abc1230000000000000000000000000000000001",
+      "repository": { "full_name": "acme/widgets" },
+      "commit": {
+        "message": "Add day-boundary math\n\nBody line that must not reach the title.\n",
+        "author": { "date": "2026-08-21T06:28:55.000-05:00" }
+      }
+    },
+    {
+      "html_url": "https://github.com/joshuaswarren/remnic/commit/missing-sha",
+      "repository": { "full_name": "joshuaswarren/remnic" },
+      "commit": { "message": "No sha, dropped", "author": { "date": "2026-08-21T06:00:00Z" } }
+    },
+    {
+      "sha": "def4560000000000000000000000000000000002",
+      "html_url": "https://github.com/joshuaswarren/allward/commit/def4560000000000000000000000000000000002",
+      "repository_url": "https://api.github.com/repos/joshuaswarren/allward",
+      "commit": { "message": "No repository object, repository_url fallback", "author": { "date": "2026-08-21T07:00:00Z" } }
+    },
+    {
+      "sha": "789abc0000000000000000000000000000000003",
+      "html_url": "https://github.com/x/y/commit/789abc0000000000000000000000000000000003",
+      "commit": { "message": "Neither repository nor repository_url", "author": { "date": "2026-08-21T05:00:00Z" } }
+    },
+    {
+      "sha": "fff0000000000000000000000000000000000004",
+      "html_url": "https://github.com/x/y/commit/fff0000000000000000000000000000000000004",
+      "repository": { "full_name": "x/y" },
+      "commit": { "message": "No author date, dropped" }
+    }
+  ]
+}
