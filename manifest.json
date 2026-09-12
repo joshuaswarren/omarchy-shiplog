@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.joshuaswarren.shiplog",
   "name": "Shiplog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Joshua Warren",
   "description": "A captain's log of what you shipped today: merged PRs, pushed commits, closed issues.",
   "kinds": [

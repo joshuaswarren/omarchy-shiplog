@@ -232,8 +232,8 @@ Panel {
 
   function open() {
     openedFromHotkey = false
-    setCenterHoverRevealSuppressed(false)
     root.controller.show()
+    setCenterHoverRevealSuppressed(false)
     root.refresh()
   }
 
@@ -249,9 +249,11 @@ Panel {
     })
   }
 
+  // Hide first: releasing keyboard and pointer ownership must never wait on
+  // anything else in this function.
   function close() {
-    setCenterHoverRevealSuppressed(false)
     root.controller.hide()
+    setCenterHoverRevealSuppressed(false)
   }
 
   function toggle() {
@@ -265,9 +267,19 @@ Panel {
     return false
   }
 
+  // The plugin bar facade (Ui/PluginBarApi.qml) exposes the flag read-only
+  // and a setter; assigning the property there throws, which once left the
+  // panel unable to close. The bare assignment is kept only for a host bar
+  // without the setter, and is guarded so it can never break close().
   function setCenterHoverRevealSuppressed(value) {
-    if (root.bar && "centerHoverRevealSuppressed" in root.bar)
-      root.bar.centerHoverRevealSuppressed = value
+    if (!root.bar) return
+    if (typeof root.bar.setCenterHoverRevealSuppressed === "function") {
+      root.bar.setCenterHoverRevealSuppressed(value)
+      return
+    }
+    try {
+      if ("centerHoverRevealSuppressed" in root.bar) root.bar.centerHoverRevealSuppressed = value
+    } catch (e) { }
   }
 
   onOpenedChanged: if (opened) selectedIndex = -1
