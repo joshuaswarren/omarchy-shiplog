@@ -1,5 +1,7 @@
 # Shiplog
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://github.com/sponsors/joshuaswarren)
+
 A captain's log of what you shipped, for the [Omarchy](https://omarchy.org) bar.
 
 Most developer widgets show work you still owe: inboxes, queues, pipelines. Shiplog shows work you finished. It counts merged PRs, pushed commits, and closed issues since midnight, right in the bar. The full log for the day is one click away. Proof of done, not a todo list.
@@ -98,6 +100,14 @@ omarchy plugin validate .
 ```
 
 `Model.js` holds every parse and derivation as pure functions. `Panel.qml` owns polling and UI. `BarWidget.qml` is the chip. Architecture notes live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Support
+
+Every bit of support helps keep omarchy-shiplog alive and free. If you are able, [sponsor on GitHub](https://github.com/sponsors/joshuaswarren) or send a Lightning donation to `joshuaswarren@strike.me` to directly fund continued development and new integrations.
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge)](https://github.com/sponsors/joshuaswarren)
+
+If financial support is not an option, you can still make a big difference: [star the repo](https://github.com/joshuaswarren/omarchy-shiplog), share it, or recommend it to a colleague. Word of mouth is how most people find omarchy-shiplog.
 
 ## License
 
