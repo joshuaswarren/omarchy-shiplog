@@ -2,9 +2,9 @@
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink)](https://github.com/sponsors/joshuaswarren)
 
-A captain's log of what you shipped, for the [Omarchy](https://omarchy.org) bar.
+A daily work log for the [Omarchy](https://omarchy.org) bar.
 
-Most developer widgets show work you still owe: inboxes, queues, pipelines. Shiplog shows work you finished. It counts merged PRs, pushed commits, and closed issues since midnight, right in the bar. The full log for the day is one click away. Proof of done, not a todo list.
+Shiplog counts commits, merged pull requests and closed issues for the day. Click the bar widget to see the log, grouped by repository.
 
 ![Shiplog in action: open the day's log, navigate with the keyboard, copy the recap](assets/demo.gif)
 
@@ -20,7 +20,7 @@ A seven-second interaction recording lives in [assets/demo.mp4](assets/demo.mp4)
 - Click-through panel with the day's log, grouped by repo, with deep links
 - GitHub via the `gh` CLI (read-only search; your auth stays in `gh`)
 - Local-repos source that works offline and with any remote
-- Seven-day strip. Receipts, not analytics: no streaks, no badges, no guilt
+- Seven-day history strip
 - One-click "copy day as Markdown" recap
 - Day boundary you can move for night-owl hours
 - Follows your theme, in tall and wide bars alike
@@ -40,7 +40,7 @@ A seven-second interaction recording lives in [assets/demo.mp4](assets/demo.mp4)
 ## Installation
 
 ```bash
-omarchy plugin add https://github.com/joshuaswarren/omarchy-shiplog
+omarchy plugin add https://github.com/joshuaswarren/omarchy-shiplog --enable
 ```
 
 Remove it the same way:
@@ -103,11 +103,7 @@ omarchy plugin validate .
 
 ## Support
 
-Every bit of support helps keep omarchy-shiplog alive and free. If you are able, [sponsor on GitHub](https://github.com/sponsors/joshuaswarren) or send a Lightning donation to `joshuaswarren@strike.me` to directly fund continued development and new integrations.
-
-[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?style=for-the-badge)](https://github.com/sponsors/joshuaswarren)
-
-If financial support is not an option, you can still make a big difference: [star the repo](https://github.com/joshuaswarren/omarchy-shiplog), share it, or recommend it to a colleague. Word of mouth is how most people find omarchy-shiplog.
+[Sponsor on GitHub](https://github.com/sponsors/joshuaswarren) or use Lightning at `joshuaswarren@strike.me`.
 
 ## License
 
