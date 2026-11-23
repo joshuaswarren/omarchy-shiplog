@@ -90,7 +90,7 @@ All GitHub traffic is REST search via `gh api`, one small burst per poll. Merged
 
 ## Security
 
-Strictly read-only toward GitHub. The plugin runs `gh` and `git` with argument arrays only. No user setting ever passes through a shell. It never touches tokens. It renders remote strings as plain text, opens only `http(s)` links, and never writes to any remote. Local writes are limited to the day-count cache at `~/.local/state/omarchy/shiplog.json` and, only when you set `recapDir`, date-named recap files inside that directory (atomic, generated filenames, fail-closed). Details in [docs/REQUIREMENTS.md §7](docs/REQUIREMENTS.md#7-security).
+Strictly read-only toward GitHub. The plugin runs `gh` and `git` with argument arrays only. No user setting ever passes through a shell. It never touches tokens. It renders remote strings as plain text, opens only `http(s)` links, and never writes to any remote. Local writes are limited to the day-count cache at `~/.local/state/omarchy/shiplog.json` and, only when you set `recapDir`, date-named recap files inside that directory (atomic, generated filenames, fail-closed).
 
 ## Development
 
@@ -99,7 +99,7 @@ node --test tests/model.test.mjs tests/local-commits.test.mjs
 omarchy plugin validate .
 ```
 
-`Model.js` holds every parse and derivation as pure functions. `Panel.qml` owns polling and UI. `BarWidget.qml` is the chip. Architecture notes live in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+`Model.js` holds every parse and derivation as pure functions. `Panel.qml` owns polling and UI. `BarWidget.qml` is the chip.
 
 ## Support
 
